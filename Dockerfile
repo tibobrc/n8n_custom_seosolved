@@ -9,7 +9,7 @@ USER root
 
 # Option 2: Install packages in n8n's node_modules (more integrated)
 WORKDIR /usr/local/lib/node_modules/n8n
- RUN npm install langfuse
+RUN npm install langfuse
 
 # Option 3: Create a custom package.json for additional dependencies
 # COPY package.json /tmp/
@@ -27,6 +27,6 @@ USER node
 WORKDIR /home/node
 
 # Optional: Set any additional environment variables
-# ENV NODE_PATH=/usr/local/lib/node_modules/n8n/node_modules
+ENV NODE_PATH=/usr/local/lib/node_modules/n8n/node_modules
 
 # The original CMD from the base image will be inherited
