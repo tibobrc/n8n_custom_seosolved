@@ -2,21 +2,23 @@ FROM n8nio/n8n:latest
 
 USER root
 
-# Debug: Check npm configuration and install locations
-RUN echo "=== NPM Configuration ===" && \
-    npm config get prefix && \
-    npm config get globaldir && \
-    npm root -g
-
 # Install langfuse globally
 RUN npm install -g langfuse
 
-# Debug: Verify installation and find actual location
-RUN echo "=== After Installation ===" && \
-    npm list -g langfuse && \
-    find /usr -name "langfuse" -type d 2>/dev/null || true && \
-    ls -la $(npm root -g) | grep langfuse || echo "langfuse not found in global root"
+# Find where n8n is installed and install langfuse there too
+RUN npm list -g n8n
+RUN find /usr -name "n8n" -type d 2>/dev/null
 
-# Set NODE_PATH to the actual global modules directory
-RUN echo "export NODE_PATH=$(npm root -g):$NODE_PATH" >> /etc/environment
-ENV NODE_PATH=/usr/local/lib/node_modules:/usr/lib/node_modules
+# Install langfuse directly in n8n's node_modules
+RUN cd /usr/local/lib/node_modules/n8n && npm install langfuse
+
+# Also install in the working directory
+WORKDIR /home/node
+RUN npm init -y && npm install langfuse
+
+# Set comprehensive NODE_PATH
+ENV NODE_PATH=/usr/local/lib/node_modules:/usr/local/lib/node_modules/n8n/node_modules:/home/node/node_modules
+
+# Switch back to n8n user
+USER node
+WORKDIR /home/node
