@@ -1,11 +1,12 @@
 FROM n8nio/n8n:latest
 
-USER root
-
-# Install langfuse globally
-RUN npm install -g langfuse
-
-# Set NODE_PATH so n8n can find global modules
-ENV NODE_PATH=/usr/local/lib/node_modules
-
+# Switch to node user and install in user directory (most reliable)
 USER node
+WORKDIR /home/node
+
+# Initialize npm and install langfuse locally
+RUN npm init -y
+RUN npm install langfuse
+
+# Verify installation
+RUN ls -la node_modules/ | grep langfuse
